@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The on-line free store \o/</title>
+
+    <!-- external js libraries -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
+    <script type="text/javascript" src="js/dropzone.js"></script>
+
+
+    <!-- js specific to this web app -->
+    <script type="text/javascript" src="js/freestore.js"></script>
+
+    <!-- css specific to this web app -->
+    <link rel="stylesheet" href="css/freestore.css"/>
+
+    <!-- templates -->
+    <script id="test_template" type="template/html">
+
+    </script>
+  </head>
+  <body>
+    <h1>Free Store</h1>
+    <div id="container">
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        
+        Description: <input type="text" name="description" value="No description" />
+
+        File: <input type="file" name="myfile" multiple="multiple" />
+        <input type="submit" value="Upload" />
+
+      </form>
+    </div>
+  </body>
+</html>
