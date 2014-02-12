@@ -19,11 +19,6 @@ function debug(msg) {
     }
 }
 
-function giveJob() {
-
-}
-
-
 var db = levelup('db/jobs.leveldb', {
     createIfMissing: true,
     keyEncoding: 'utf8',
@@ -117,7 +112,17 @@ var db = levelup('db/jobs.leveldb', {
         return stats;
     };
 
+    db.getStream = function(filename) {
+        // TODO could use some extra checks
+        // to ensure that no files outside upload dir
+        // are ever read
+        filename = path.basename(filename);
+        var filepath = path.join(config.upload_path, filename);
+        return fs.createReadStream(filepath);
+    };
+
     db.methods['getJob'] = { type: 'async' };
+    db.methods['getStream'] = { type: 'readable' };
     db.methods['addJob'] = { type: 'async' };
     db.methods['addJobs'] = { type: 'async' };
     db.methods['completeJob'] = { type: 'async' };

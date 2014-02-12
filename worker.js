@@ -13,10 +13,12 @@ var winston = require('winston');
 var manifest = require('./manifest.json');
 var UpStream = require('./upstream.js');
 
-var db = multilevel.client(manifest);
+var config = require('./config.js');
+
+var jobserver = multilevel.client(manifest);
 var con = net.connect(3000);
 
-con.pipe(db.createRpcStream()).pipe(con);
+con.pipe(jobserver.createRpcStream()).pipe(con);
 
 var magic = new Magic();
 var upstream = UpStream('plugins/upstream');
@@ -50,9 +52,10 @@ if(process.argv.length != 2) {
     process.exit(1);
 }
 
-function transcode(job, callback) {
+function work(job, stream, callback) {
+    callback = callback || function() {};
 
-    if(!job.id || !job.infilepath) {
+    if(!job.id || !job.infilepath || !stream) {
         callback("job must have both id and infilepath");
         return;
     }
@@ -82,21 +85,23 @@ function transcode(job, callback) {
     });
 }
 
-db.getJob(function(err, job) {
+jobserver.getJob(function(err, job) {
     if(err) {
         console.log("Error: " + err);
         return;
     }
     
-    console.log("Got job: " + job.infilepath);
-    transcode(job, function(err) {
+    debug("Got job: " + job.infilepath);
+    var stream = jobserver.getStream(job.infilepath);
+
+    work(job, stream, function(err) {
         if(err) {
             console.log("Abandoning job: " + job.infilepath);
-            db.abandonJob(job);
+            jobserver.abandonJob(job);
             return;
         }
         
-        db.completeJob(job, function(err, job) {
+        jobserver.completeJob(job, function(err, job) {
             console.log("Completed job: " + job.outfilepath);
         });
     });

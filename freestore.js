@@ -89,7 +89,7 @@ app.post('/upload', function(req, res) {
 
         jobserver.addJob(
             {
-                infilepath: filepath
+                infilepath: filename
             },function(err, job) {
                 if(err) {
                     console.log("Erraw: " + err);
