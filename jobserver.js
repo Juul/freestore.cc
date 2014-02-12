@@ -19,6 +19,11 @@ function debug(msg) {
     }
 }
 
+function giveJob() {
+
+}
+
+
 var db = levelup('db/jobs.leveldb', {
     createIfMissing: true,
     keyEncoding: 'utf8',
@@ -39,7 +44,7 @@ var db = levelup('db/jobs.leveldb', {
         // if others are already waiting
         // then assume there are no jobs
         if(!waiting.isEmpty()) {
-            debug("No jobs. Queuing transcoder");
+            debug("No jobs. Queuing worker");
             waiting.push(callback);
             return;
         }
@@ -50,11 +55,11 @@ var db = levelup('db/jobs.leveldb', {
                 return;
             }
             if(!job) { // no jobs available
-                debug("No jobs. Queuing transcoder");
+                debug("No jobs. Queuing worker");
                 waiting.push(callback);
                 return;
             }
-            debug("Handing job to transcoder: " + util.inspect(job));
+            debug("Handing job to worker: " + util.inspect(job));
             callback(null, job);
         });
     };
@@ -67,14 +72,15 @@ var db = levelup('db/jobs.leveldb', {
                 callback(err);
                 return;
             }
-            var transcoder = waiting.pop();
-            if(transcoder) {
-                transcoder(null, job);
-                debug("new job given to transcoder");
+            var worker = waiting.pop();
+            if(worker) {
+                worker(null, job);
+                debug("new job given to worker");
                 callback();
                 return;
+            } else {
+                debug("new job queued");
             }
-            debug("new job queued");
             callback();
         });
     };
@@ -99,12 +105,12 @@ var db = levelup('db/jobs.leveldb', {
     /*
       Get some statistics about how many jobs are
       waiting and being processed, and how many
-      transcoders are waiting.
+      workers are waiting.
     */
     db.getStats = function(callback) {
         debug("getStats called");
         var stats = jobs.counts;
-        stats.waiting_transcoders = waiting.length();
+        stats.waiting_workers = waiting.length();
         if(callback) {
             callback(stats);
         }

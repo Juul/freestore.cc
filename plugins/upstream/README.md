@@ -9,8 +9,15 @@ The job queue talks to the workers (transcoders and can run in one of two modes:
 
 The workers handle all processing individually.
 
-The text below is out of date and needs updating.
+Inside a worker, filter, transform and endpoint plugins are chained by piping streams.
 
+Filter plugins:
+  checksummer: calculates checksum
+  virusscan: talks to avclam daemon
+  
+The virusscan filter plugin will actually stop all processing, but the checksummer only appends some metadata to the returned files.
+
+The text below is out of date and needs updating.
 
 # About UpStream plugins #
 

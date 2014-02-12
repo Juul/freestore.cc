@@ -6,15 +6,21 @@ var net = require('net');
 var levelup = require('levelup');
 var multilevel = require('multilevel');
 var argv = require('optimist').argv;
-var manifest = require('./manifest.json');
 var sleep = require('sleep');
 var ffmpeg = require('fluent-ffmpeg');
 var winston = require('winston');
+
+var manifest = require('./manifest.json');
+var UpStream = require('./upstream.js');
 
 var db = multilevel.client(manifest);
 var con = net.connect(3000);
 
 con.pipe(db.createRpcStream()).pipe(con);
+
+var magic = new Magic();
+var upstream = UpStream('plugins/upstream');
+
 
 var config = {
     port: 3000,
